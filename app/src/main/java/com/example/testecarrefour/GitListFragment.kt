@@ -2,9 +2,14 @@ package com.example.testecarrefour
 
 import android.text.Editable
 import android.text.TextWatcher
+import androidx.navigation.NavController
+import androidx.navigation.Navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.testecarrefour.core.BaseFragment
 import com.example.testecarrefour.databinding.FragmentGitListBinding
+import com.example.testecarrefour.extensions.Navigate
+import com.example.testecarrefour.extensions.navigateWithAnimations
 import com.example.testecarrefour.response.UsersResponse
 import com.example.testecarrefour.ui.GitListAdapter
 import com.example.testecarrefour.viewmodel.MainViewModel
@@ -15,6 +20,7 @@ class GitListFragment : BaseFragment<FragmentGitListBinding>() {
     private val viewModel: MainViewModel by sharedViewModel()
     private var adapter: GitListAdapter? = null
     private var originalList: ArrayList<UsersResponse> = arrayListOf()
+    private var userName: String? = ""
     private var filteredList: ArrayList<UsersResponse> = arrayListOf()
 
     override fun layoutId() = R.layout.fragment_git_list
@@ -31,16 +37,21 @@ class GitListFragment : BaseFragment<FragmentGitListBinding>() {
 
     private fun setObservers() {
 
-        viewModel.gitList.observe(viewLifecycleOwner) {
+        viewModel.getList.observe(viewLifecycleOwner) {
             showLoading(false)
             adapter?.setList(ArrayList(it))
             originalList = it
         }
+
     }
 
     private fun render() {
 
-        adapter = GitListAdapter {}
+        adapter = GitListAdapter {
+            userName = originalList[it].login
+            viewModel.getListUsers(userName)
+            findNavController().navigateWithAnimations(R.id.UserDetailsFragment)
+        }
 
         binding?.apply {
 
@@ -49,7 +60,6 @@ class GitListFragment : BaseFragment<FragmentGitListBinding>() {
             })
             listGitAdapter.adapter = adapter
         }
-
     }
 
     private fun searchBar() {
@@ -67,7 +77,9 @@ class GitListFragment : BaseFragment<FragmentGitListBinding>() {
                     filterList(s.toString())
                 }
 
-                override fun afterTextChanged(s: Editable?) {}
+                override fun afterTextChanged(s: Editable?) {
+
+                }
             })
         }
     }

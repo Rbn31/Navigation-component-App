@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class MainRepository: GitHubRepository {
 
-    override suspend fun getGitList(): ResultWrapper<List<UsersResponse>> {
+    override suspend fun getListUsers(): ResultWrapper<List<UsersResponse>> {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.github.com/")
             .addConverterFactory(GsonConverterFactory.create())
@@ -17,8 +17,20 @@ class MainRepository: GitHubRepository {
         val service = retrofit.create(GitHubService::class.java)
 
         return call{
-            service.getUsers()
+            service.getListUsers()
         }
+    }
 
+    override suspend fun getDetailsUsers(userName: String?): ResultWrapper<UsersResponse> {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://api.github.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val service = retrofit.create(GitHubService::class.java)
+
+        return call{
+            service.getDetailsUsers(userName)
+        }
     }
 }

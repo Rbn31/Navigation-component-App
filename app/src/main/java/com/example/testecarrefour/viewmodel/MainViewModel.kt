@@ -12,7 +12,8 @@ import kotlinx.coroutines.launch
 class MainViewModel(private val repository: GitHubRepository) : ViewModel() {
 
     val state: MutableLiveData<MainViewState> = MutableLiveData()
-    val gitList: MutableLiveData<ArrayList<UsersResponse>> = MutableLiveData()
+    val getList: MutableLiveData<ArrayList<UsersResponse>> = MutableLiveData()
+    val getUserDetails: MutableLiveData<UsersResponse?> = MutableLiveData()
     private val gitListData = arrayListOf<UsersResponse>()
 
     fun fetchGitList() {
@@ -20,10 +21,27 @@ class MainViewModel(private val repository: GitHubRepository) : ViewModel() {
         viewModelScope.launch {
             state.value = MainViewState.ShowLoading(true)
 
-            when (val response = repository.getGitList()) {
+            when (val response = repository.getListUsers()) {
                 is ResultWrapper.Success -> {
                     gitListData.addAll(response.value)
-                    gitList.value = gitListData
+                    getList.value = gitListData
+                }
+                is ResultWrapper.Error -> state.value = state.value
+            }
+
+            state.value = MainViewState.ShowLoading(false)
+
+        }
+    }
+
+    fun getListUsers(userName: String?) {
+
+        viewModelScope.launch {
+            state.value = MainViewState.ShowLoading(true)
+
+            when (val response = repository.getDetailsUsers(userName)) {
+                is ResultWrapper.Success -> {
+                    getUserDetails.value = response.value
                 }
                 is ResultWrapper.Error -> state.value = state.value
             }

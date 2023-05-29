@@ -13,10 +13,25 @@ private val navOptions = NavOptions.Builder()
     .setPopExitAnim(R.anim.slide_out_right)
     .build()
 
-fun NavController.navigateAnimation(destinationId: Int, params: Bundle? = null) {
-    this.navigate(destinationId, params, navOptions)
+fun NavController.navigateWithAnimations(destinationId: Int, params: Bundle? = null, popIfExists: Boolean = false, selectedNavOptions: NavOptions = navOptions) {
+    if (popIfExists) {
+        if (!this.popBackStack(destinationId, false)) {
+            this.navigate(destinationId, params, selectedNavOptions)
+            return
+        }
+        return
+    }
+    this.navigate(destinationId, params, selectedNavOptions)
 }
 
-fun NavController.navigateAnimation(directions: NavDirections) {
+fun NavController.navigateWithAnimations(directions: NavDirections) {
     this.navigate(directions, navOptions)
+}
+
+fun NavController.navigateWithAnimationsFromBottom(destinationId: Int, params: Bundle? = null, popIfExists: Boolean = false) {
+    val selectedNavOptions = NavOptions.Builder()
+        .setEnterAnim(R.anim.slide_from_bottom)
+        .build()
+
+    navigateWithAnimations(destinationId, params, popIfExists, selectedNavOptions)
 }
